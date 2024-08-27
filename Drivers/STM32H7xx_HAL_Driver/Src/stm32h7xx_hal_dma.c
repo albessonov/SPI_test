@@ -221,27 +221,20 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   }
 
   /* Check the parameters */
-  assert_param(IS_DMA_ALL_INSTANCE(hdma->Instance));
-  assert_param(IS_DMA_DIRECTION(hdma->Init.Direction));
-  assert_param(IS_DMA_PERIPHERAL_INC_STATE(hdma->Init.PeriphInc));
-  assert_param(IS_DMA_MEMORY_INC_STATE(hdma->Init.MemInc));
-  assert_param(IS_DMA_PERIPHERAL_DATA_SIZE(hdma->Init.PeriphDataAlignment));
-  assert_param(IS_DMA_MEMORY_DATA_SIZE(hdma->Init.MemDataAlignment));
-  assert_param(IS_DMA_MODE(hdma->Init.Mode));
-  assert_param(IS_DMA_PRIORITY(hdma->Init.Priority));
+
 
   if(IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
   {
-    assert_param(IS_DMA_REQUEST(hdma->Init.Request));
-    assert_param(IS_DMA_FIFO_MODE_STATE(hdma->Init.FIFOMode));
+    /*assert_param(IS_DMA_REQUEST(hdma->Init.Request));
+    assert_param(IS_DMA_FIFO_MODE_STATE(hdma->Init.FIFOMode));*/
     /* Check the memory burst, peripheral burst and FIFO threshold parameters only
        when FIFO mode is enabled */
-    if(hdma->Init.FIFOMode != DMA_FIFOMODE_DISABLE)
+    /*if(hdma->Init.FIFOMode != DMA_FIFOMODE_DISABLE)
     {
       assert_param(IS_DMA_FIFO_THRESHOLD(hdma->Init.FIFOThreshold));
       assert_param(IS_DMA_MEMORY_BURST(hdma->Init.MemBurst));
       assert_param(IS_DMA_PERIPHERAL_BURST(hdma->Init.PeriphBurst));
-    }
+    }*/
 
     /* Change DMA peripheral state */
     hdma->State = HAL_DMA_STATE_BUSY;
@@ -1230,30 +1223,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
         hdma->ErrorCode |= HAL_DMA_ERROR_TE;
       }
     }
-    /* FIFO Error Interrupt management ******************************************/
-    if ((tmpisr_dma & (DMA_FLAG_FEIF0_4 << (hdma->StreamIndex & 0x1FU))) != 0U)
-    {
-      if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_FE) != 0U)
-      {
-        /* Clear the FIFO error flag */
-        regs_dma->IFCR = DMA_FLAG_FEIF0_4 << (hdma->StreamIndex & 0x1FU);
-
-        /* Update error code */
-        hdma->ErrorCode |= HAL_DMA_ERROR_FE;
-      }
-    }
-    /* Direct Mode Error Interrupt management ***********************************/
-    if ((tmpisr_dma & (DMA_FLAG_DMEIF0_4 << (hdma->StreamIndex & 0x1FU))) != 0U)
-    {
-      if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_DME) != 0U)
-      {
-        /* Clear the direct mode error flag */
-        regs_dma->IFCR = DMA_FLAG_DMEIF0_4 << (hdma->StreamIndex & 0x1FU);
-
-        /* Update error code */
-        hdma->ErrorCode |= HAL_DMA_ERROR_DME;
-      }
-    }
+    
     /* Half Transfer Complete Interrupt management ******************************/
     if ((tmpisr_dma & (DMA_FLAG_HTIF0_4 << (hdma->StreamIndex & 0x1FU))) != 0U)
     {

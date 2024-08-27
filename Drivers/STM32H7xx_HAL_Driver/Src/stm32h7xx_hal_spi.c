@@ -244,106 +244,19 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
   }
 
   /* Check the parameters */
-  assert_param(IS_SPI_ALL_INSTANCE(hspi->Instance));
-  assert_param(IS_SPI_MODE(hspi->Init.Mode));
-  assert_param(IS_SPI_DIRECTION(hspi->Init.Direction));
-  assert_param(IS_SPI_DATASIZE(hspi->Init.DataSize));
-  assert_param(IS_SPI_FIFOTHRESHOLD(hspi->Init.FifoThreshold));
-  assert_param(IS_SPI_NSS(hspi->Init.NSS));
-  assert_param(IS_SPI_NSSP(hspi->Init.NSSPMode));
-  assert_param(IS_SPI_BAUDRATE_PRESCALER(hspi->Init.BaudRatePrescaler));
-  assert_param(IS_SPI_FIRST_BIT(hspi->Init.FirstBit));
-  assert_param(IS_SPI_TIMODE(hspi->Init.TIMode));
-  if (hspi->Init.TIMode == SPI_TIMODE_DISABLE)
-  {
-    assert_param(IS_SPI_CPOL(hspi->Init.CLKPolarity));
-    assert_param(IS_SPI_CPHA(hspi->Init.CLKPhase));
-  }
-#if (USE_SPI_CRC != 0UL)
-  assert_param(IS_SPI_CRC_CALCULATION(hspi->Init.CRCCalculation));
-  if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
-  {
-    assert_param(IS_SPI_CRC_LENGTH(hspi->Init.CRCLength));
-    assert_param(IS_SPI_CRC_POLYNOMIAL(hspi->Init.CRCPolynomial));
-    assert_param(IS_SPI_CRC_INITIALIZATION_PATTERN(hspi->Init.TxCRCInitializationPattern));
-    assert_param(IS_SPI_CRC_INITIALIZATION_PATTERN(hspi->Init.RxCRCInitializationPattern));
-  }
-#else
+  
+
   hspi->Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-#endif /* USE_SPI_CRC */
 
-  /* Verify that the SPI instance supports Data Size higher than 16bits */
-  if ((!IS_SPI_HIGHEND_INSTANCE(hspi->Instance)) && (hspi->Init.DataSize > SPI_DATASIZE_16BIT))
-  {
-    return HAL_ERROR;
-  }
-
-  /* Verify that the SPI instance supports requested data packing */
-  packet_length = SPI_GetPacketSize(hspi);
-  if (((!IS_SPI_HIGHEND_INSTANCE(hspi->Instance)) && (packet_length > SPI_LOWEND_FIFO_SIZE)) ||
-      ((IS_SPI_HIGHEND_INSTANCE(hspi->Instance)) && (packet_length > SPI_HIGHEND_FIFO_SIZE)))
-  {
-    return HAL_ERROR;
-  }
-
-#if (USE_SPI_CRC != 0UL)
-  if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
-  {
-    /* Verify that the SPI instance supports CRC Length higher than 16bits */
-    if ((!IS_SPI_HIGHEND_INSTANCE(hspi->Instance)) && (hspi->Init.CRCLength > SPI_CRC_LENGTH_16BIT))
-    {
-      return HAL_ERROR;
-    }
-
-    /* Align the CRC Length on the data size */
-    if (hspi->Init.CRCLength == SPI_CRC_LENGTH_DATASIZE)
-    {
-      crc_length = (hspi->Init.DataSize >> SPI_CFG1_DSIZE_Pos) << SPI_CFG1_CRCSIZE_Pos;
-    }
-    else
-    {
-      crc_length = hspi->Init.CRCLength;
-    }
-
-    /* Verify that the CRC Length is higher than DataSize */
-    if ((hspi->Init.DataSize >> SPI_CFG1_DSIZE_Pos) > (crc_length >> SPI_CFG1_CRCSIZE_Pos))
-    {
-      return HAL_ERROR;
-    }
-  }
-  else
-  {
-    crc_length = hspi->Init.DataSize << SPI_CFG1_CRCSIZE_Pos;
-  }
-#endif /* USE_SPI_CRC */
 
   if (hspi->State == HAL_SPI_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
     hspi->Lock = HAL_UNLOCKED;
 
-#if (USE_HAL_SPI_REGISTER_CALLBACKS == 1UL)
-    /* Init the SPI Callback settings */
-    hspi->TxCpltCallback       = HAL_SPI_TxCpltCallback;       /* Legacy weak TxCpltCallback       */
-    hspi->RxCpltCallback       = HAL_SPI_RxCpltCallback;       /* Legacy weak RxCpltCallback       */
-    hspi->TxRxCpltCallback     = HAL_SPI_TxRxCpltCallback;     /* Legacy weak TxRxCpltCallback     */
-    hspi->TxHalfCpltCallback   = HAL_SPI_TxHalfCpltCallback;   /* Legacy weak TxHalfCpltCallback   */
-    hspi->RxHalfCpltCallback   = HAL_SPI_RxHalfCpltCallback;   /* Legacy weak RxHalfCpltCallback   */
-    hspi->TxRxHalfCpltCallback = HAL_SPI_TxRxHalfCpltCallback; /* Legacy weak TxRxHalfCpltCallback */
-    hspi->ErrorCallback        = HAL_SPI_ErrorCallback;        /* Legacy weak ErrorCallback        */
-    hspi->AbortCpltCallback    = HAL_SPI_AbortCpltCallback;    /* Legacy weak AbortCpltCallback    */
 
-    if (hspi->MspInitCallback == NULL)
-    {
-      hspi->MspInitCallback = HAL_SPI_MspInit; /* Legacy weak MspInit  */
-    }
-
-    /* Init the low level hardware : GPIO, CLOCK, NVIC... */
-    hspi->MspInitCallback(hspi);
-#else
-    /* Init the low level hardware : GPIO, CLOCK, NVIC... */
     HAL_SPI_MspInit(hspi);
-#endif /* USE_HAL_SPI_REGISTER_CALLBACKS */
+
   }
 
   hspi->State = HAL_SPI_STATE_BUSY;
@@ -468,7 +381,6 @@ HAL_StatusTypeDef HAL_SPI_DeInit(SPI_HandleTypeDef *hspi)
   }
 
   /* Check SPI Instance parameter */
-  assert_param(IS_SPI_ALL_INSTANCE(hspi->Instance));
 
   hspi->State = HAL_SPI_STATE_BUSY;
 
@@ -2374,54 +2286,21 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *
   }
 
   /* Adjust XferCount according to DMA alignment / Data size */
-  if (hspi->Init.DataSize <= SPI_DATASIZE_8BIT)
-  {
-    if (hspi->hdmatx->Init.MemDataAlignment == DMA_MDATAALIGN_HALFWORD)
-    {
-      hspi->TxXferCount = (hspi->TxXferCount + (uint16_t) 1UL) >> 1UL;
-    }
-    if (hspi->hdmatx->Init.MemDataAlignment == DMA_MDATAALIGN_WORD)
-    {
-      hspi->TxXferCount = (hspi->TxXferCount + (uint16_t) 3UL) >> 2UL;
-    }
-    if (hspi->hdmarx->Init.MemDataAlignment == DMA_MDATAALIGN_HALFWORD)
-    {
-      hspi->RxXferCount = (hspi->RxXferCount + (uint16_t) 1UL) >> 1UL;
-    }
-    if (hspi->hdmarx->Init.MemDataAlignment == DMA_MDATAALIGN_WORD)
-    {
-      hspi->RxXferCount = (hspi->RxXferCount + (uint16_t) 3UL) >> 2UL;
-    }
-  }
-  else if (hspi->Init.DataSize <= SPI_DATASIZE_16BIT)
-  {
-    if (hspi->hdmatx->Init.MemDataAlignment == DMA_MDATAALIGN_WORD)
-    {
-      hspi->TxXferCount = (hspi->TxXferCount + (uint16_t) 1UL) >> 1UL;
-    }
-    if (hspi->hdmarx->Init.MemDataAlignment == DMA_MDATAALIGN_WORD)
-    {
-      hspi->RxXferCount = (hspi->RxXferCount + (uint16_t) 1UL) >> 1UL;
-    }
-  }
-  else
-  {
-    /* Adjustment done */
-  }
+  
 
   /* Check if we are in Rx only or in Rx/Tx Mode and configure the DMA transfer complete callback */
-  if (hspi->State == HAL_SPI_STATE_BUSY_RX)
-  {
+ // if (hspi->State == HAL_SPI_STATE_BUSY_RX)
+  //{
     /* Set the SPI Rx DMA Half transfer complete callback */
-    hspi->hdmarx->XferHalfCpltCallback = SPI_DMAHalfReceiveCplt;
+   /*hspi->hdmarx->XferHalfCpltCallback = SPI_DMAHalfReceiveCplt;
     hspi->hdmarx->XferCpltCallback     = SPI_DMAReceiveCplt;
   }
   else
-  {
+  {*/
     /* Set the SPI Tx/Rx DMA Half transfer complete callback */
     hspi->hdmarx->XferHalfCpltCallback = SPI_DMAHalfTransmitReceiveCplt;
     hspi->hdmarx->XferCpltCallback     = SPI_DMATransmitReceiveCplt;
-  }
+  //}
 
   /* Set the DMA error callback */
   hspi->hdmarx->XferErrorCallback = SPI_DMAError;
@@ -2487,11 +2366,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *
   /* Enable SPI peripheral */
   __HAL_SPI_ENABLE(hspi);
 
-  if (hspi->Init.Mode == SPI_MODE_MASTER)
-  {
-    /* Master transfer start */
-    SET_BIT(hspi->Instance->CR1, SPI_CR1_CSTART);
-  }
+
 
   /* Unlock the process */
   __HAL_UNLOCK(hspi);
@@ -3294,6 +3169,7 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
     {
       /* Enable EOT interrupt */
       __HAL_SPI_ENABLE_IT(hspi, SPI_IT_EOT);
+        
     }
   }
 }

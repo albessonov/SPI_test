@@ -24,6 +24,7 @@ initil_test\stm32h7xx_hal_tim.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_h
 initil_test\stm32h7xx_hal_tim.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_mdma.h
 initil_test\stm32h7xx_hal_tim.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_exti.h
 initil_test\stm32h7xx_hal_tim.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_cortex.h
+initil_test\stm32h7xx_hal_tim.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_fdcan.h
 initil_test\stm32h7xx_hal_tim.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_flash.h
 initil_test\stm32h7xx_hal_tim.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_flash_ex.h
 initil_test\stm32h7xx_hal_tim.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_hsem.h

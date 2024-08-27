@@ -313,8 +313,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
 #endif
 
   /* Check the parameters */
-  assert_param(IS_GPIO_ALL_INSTANCE(GPIOx));
-  assert_param(IS_GPIO_PIN(GPIO_Pin));
+
 
   /* Configure the port pins */
   while ((GPIO_Pin >> position) != 0x00U)
@@ -326,21 +325,21 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
     {
       /*------------------------- EXTI Mode Configuration --------------------*/
       /* Clear the External Interrupt or Event for the current IO */
-      tmp = SYSCFG->EXTICR[position >> 2U];
+      /*tmp = SYSCFG->EXTICR[position >> 2U];
       tmp &= (0x0FUL << (4U * (position & 0x03U)));
       if (tmp == (GPIO_GET_INDEX(GPIOx) << (4U * (position & 0x03U))))
-      {
+      {*/
         /* Clear EXTI line configuration for Current CPU */
-        EXTI_CurrentCPU->IMR1 &= ~(iocurrent);
-        EXTI_CurrentCPU->EMR1 &= ~(iocurrent);
+        /*EXTI_CurrentCPU->IMR1 &= ~(iocurrent);
+        EXTI_CurrentCPU->EMR1 &= ~(iocurrent);*/
 
         /* Clear Rising Falling edge configuration */
-        EXTI->FTSR1 &= ~(iocurrent);
+        /*EXTI->FTSR1 &= ~(iocurrent);
         EXTI->RTSR1 &= ~(iocurrent);
 
         tmp = 0x0FUL << (4U * (position & 0x03U));
-        SYSCFG->EXTICR[position >> 2U] &= ~tmp;
-      }
+        SYSCFG->EXTICR[position >> 2U] &= ~tmp;*/
+      //}
 
       /*------------------------- GPIO Mode Configuration --------------------*/
       /* Configure IO in Analog Mode */
