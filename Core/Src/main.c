@@ -86,16 +86,17 @@ ctr++;
 		  ctr2=0;
 		}
     //if(ctr>3){
-    switch(memcmp(SPI_RX,RXCMD1,4))
+   // switch(memcmp(SPI_RX,RXCMD1,4))
+      switch(ctr%2)
     { 
-      case 1: 
+      case 0: 
        SPI_resp[0]=(*(acceleration_X_ptr+ctr0))>>24;
        SPI_resp[1]=(*(acceleration_X_ptr+ctr0))>>16;
        SPI_resp[2]=(*(acceleration_X_ptr+ctr0))>>8;
        SPI_resp[3]=(*(acceleration_X_ptr+ctr0));
        ctr0+=1;
        break;
-      case 0:
+      case 1:
        SPI_resp[0]=(*(acceleration_Y_ptr+ctr2))>>24;
        SPI_resp[1]=(*(acceleration_Y_ptr+ctr2))>>16;
        SPI_resp[2]=(*(acceleration_Y_ptr+ctr2))>>8;
@@ -110,6 +111,9 @@ ctr++;
     HAL_SPI_DeInit(&hspi3);
     //HAL_DMA_Init(&hdma_spi3_tx);
     HAL_SPI_Init(&hspi3);*/
+    __HAL_RCC_SPI3_FORCE_RESET();
+    __NOP();
+    __HAL_RCC_SPI3_RELEASE_RESET();
     SPI_DMA_Restart();
     HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_RESET);
 }
